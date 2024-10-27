@@ -49,6 +49,26 @@ public class TodoDAO {
         LOGGER.info("Todo saved");
     }
 
+    public void saveAll(List<Todo> todos) {
+        LOGGER.info("Saving all todos");
+
+        try (Connection conn = todosDataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(INSERT_TODO)) {
+            for (Todo todo : todos) {
+                ps.setString(1, todo.name());
+                ps.addBatch();
+            }
+
+            int[] executedUpdate = ps.executeBatch();
+
+            LOGGER.info("All todos saved, rows affected: {}", executedUpdate.length);
+        } catch (Exception e) {
+            LOGGER.error("Error saving all todos", e);
+        }
+
+        LOGGER.info("All todos saved");
+    }
+
     public void update(Todo todo) {
         LOGGER.info("Updating todo");
 
@@ -65,6 +85,27 @@ public class TodoDAO {
         }
 
         LOGGER.info("Todo updated");
+    }
+
+    public void updateAll(List<Todo> todos) {
+        LOGGER.info("Updating all todos");
+
+        try (Connection conn = todosDataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(UPDATE_TODO)) {
+            for (Todo todo : todos) {
+                ps.setString(1, todo.name());
+                ps.setLong(2, todo.id());
+                ps.addBatch();
+            }
+
+            int[] executedUpdate = ps.executeBatch();
+
+            LOGGER.info("All todos updated, rows affected: {}", executedUpdate.length);
+        } catch (Exception e) {
+            LOGGER.error("Error updating all todos", e);
+        }
+
+        LOGGER.info("All todos updated");
     }
 
     public List<Todo> findAll() {

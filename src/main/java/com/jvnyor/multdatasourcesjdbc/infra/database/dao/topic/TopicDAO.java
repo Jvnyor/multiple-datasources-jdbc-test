@@ -49,6 +49,26 @@ public class TopicDAO {
         LOGGER.info("Topic saved");
     }
 
+    public void saveAll(List<Topic> topics) {
+        LOGGER.info("Saving all topics");
+
+        try (Connection conn = topicsDataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(INSERT_TOPIC)) {
+            for (Topic topic : topics) {
+                ps.setString(1, topic.name());
+                ps.addBatch();
+            }
+
+            int[] executedUpdate = ps.executeBatch();
+
+            LOGGER.info("All topics saved, rows affected: {}", executedUpdate.length);
+        } catch (Exception e) {
+            LOGGER.error("Error saving all topics", e);
+        }
+
+        LOGGER.info("All topics saved");
+    }
+
     public void update(Topic topic) {
         LOGGER.info("Updating topic");
 
@@ -65,6 +85,27 @@ public class TopicDAO {
         }
 
         LOGGER.info("Topic updated");
+    }
+
+    public void updateAll(List<Topic> topics) {
+        LOGGER.info("Updating all topics");
+
+        try (Connection conn = topicsDataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(UPDATE_TOPIC)) {
+            for (Topic topic : topics) {
+                ps.setString(1, topic.name());
+                ps.setLong(2, topic.id());
+                ps.addBatch();
+            }
+
+            int[] executedUpdate = ps.executeBatch();
+
+            LOGGER.info("All topics updated, rows affected: {}", executedUpdate.length);
+        } catch (Exception e) {
+            LOGGER.error("Error updating all topics", e);
+        }
+
+        LOGGER.info("All topics updated");
     }
 
     public List<Topic> findAll() {
